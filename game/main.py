@@ -1,12 +1,40 @@
-from game.properties import property_list
-from game.players import player
+from game.properties import props
+from game.games import game, players
+from game.strings import strings
 
-property_list()
-p1 = player("P1♞")
+def switch(val):
+    s = {
+        "s": states,
+    }
+    f = s.get(val)
+    return f()
 
-print(p1.position)
-p1.move(39)
-print(p1.position)
-p1.roll_die()
-print(p1.position)
-print(p1.avatar)
+def states():
+    print("#-Players-#-Pos-#-Money-#")
+    for p in players:
+        print("|{0:^9}|{1:5}|{2:7}|".format(p.avatar, p.position, p.money))
+    print("#---------#-----#-------#")
+
+def start():
+    states()
+    players[0].ai_turn()
+    switch("s") #states() is shorter...
+    #while True:
+        #turns, playing, stuff here
+        #probably need an ai
+        #foreach players?
+        #cmd = input()
+
+if __name__ == '__main__':
+    '''
+    #commented for quicker testing
+    print("Number of players?")
+    try:
+        p = int(input())
+        game(p)
+        start()
+    except ValueError:
+        print(strings("err_pc")) #between 2-4.
+    '''
+    game(4)
+    start()
