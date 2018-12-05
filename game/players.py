@@ -1,5 +1,5 @@
 from game.strings import strings
-from game.properties import props
+from game.properties import *
 import random
 
 class player():
@@ -35,14 +35,17 @@ class player():
         self.temp_pos = self.position
         self.roll_die()
         print("%s is moving from %d to %d." % (self.avatar, self.temp_pos, self.position))
-        self.cur_prop = next((p for p in props if p.position == self.position), None)
+        self.cur_tile = next((p for p in props if p.position == self.position), None)
         #if none check others here?
-        print("%d is %s." % (self.position, self.cur_prop.name))
-        print("%s has $%d, %s costs $%d." % (self.avatar, self.money, self.cur_prop.name, self.cur_prop.cost))
+        #props, chances, stations, utils, taxes, miscs
+        if self.cur_tile is None:
+            self.cur_tile = next((p for p in props if p.position == self.position), None)
+        print("%d is %s." % (self.position, self.cur_tile.name))
+        print("%s has $%d, %s costs $%d." % (self.avatar, self.money, self.cur_tile.name, self.cur_tile.cost))
         #if can afford 110% of the cost
-        if (self.money * 1.1) >= self.cur_prop.cost:
-            print("%s decides to buy %s." % (self.avatar, self.cur_prop.name))
-            self.buy(self.cur_prop, self.cur_prop.cost)
+        if (self.money * 1.1) >= self.cur_tile.cost:
+            print("%s decides to buy %s." % (self.avatar, self.cur_tile.name))
+            self.buy(self.cur_tile, self.cur_tile.cost)
         else:
-            print("%s decides to not buy %s. It's in auction now." % (self.avatar, self.cur_prop.name))
+            print("%s decides to not buy %s. It's in auction now." % (self.avatar, self.cur_tile.name))
 

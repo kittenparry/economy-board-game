@@ -36,6 +36,7 @@ stations = []
 utils = []
 taxes = []
 miscs = []
+tiles = []
 def make_properties():
     #probably could do a for loop below?
     #a dictionary maybe?
@@ -78,3 +79,37 @@ def make_miscs():
     positions = [0, 10, 20, 30]
     for x in range(len(names)):
         miscs.append(misc(names[x], positions[x]))
+def make_tiles():
+    for x in range(40):
+        '''
+        temp.append(next((p for p in props if p.position == x), None))
+        temp.append(next((p for p in chances if p.position == x), None))
+        temp.append(next((p for p in stations if p.position == x), None))
+        temp.append(next((p for p in utils if p.position == x), None))
+        temp.append(next((p for p in taxes if p.position == x), None))
+        temp.append(next((p for p in miscs if p.position == x), None))
+        '''
+        '''
+        for p in props:
+            if p.position == x:
+                tiles.insert(-1, p)
+        for p in chances:
+            if p.position == x:
+                tiles.insert(-1, p)
+        for p in stations:
+            if p.position == x:
+                tiles.insert(-1, p)
+        for p in utils:
+            if p.position == x:
+                tiles.insert(-1, p)
+        for p in taxes:
+            if p.position == x:
+                tiles.insert(-1, p)
+        for p in miscs:
+            if p.position == x:
+                tiles.insert(-1, p)
+        '''
+        for p in props, chances, stations, utils, taxes, miscs:
+            for l in p:
+                if l.position == x:
+                    tiles.insert(-1, l)
