@@ -1,12 +1,16 @@
 
 class property():
-    def __init__(self, name, cost, colour, position, houses, hotel):
+    def __init__(self, name, cost, colour, position, houses, hotel, rent):
         self.name = name
         self.cost = cost
         self.colour = colour
         self.position = position
         self.houses = houses
         self.hotel = hotel
+        self.owner = None
+        self.house_count = 0
+        self.has_hotel = False
+        self.rent = rent
 class chance():
     def __init__(self, name, position):
         self.name = name
@@ -16,11 +20,13 @@ class station():
         self.name = name
         self.cost = cost
         self.position = position
+        self.owner = None
 class util():
     def __init__(self, name, cost, position):
         self.name = name
         self.cost = cost
         self.position = position
+        self.owner = None
 class tax():
     def __init__(self, name, cost, position):
         self.name = name
@@ -37,6 +43,7 @@ utils = []
 taxes = []
 miscs = []
 tiles = []
+availables = []
 def make_properties():
     #probably could do a for loop below?
     #a dictionary maybe?
@@ -46,8 +53,9 @@ def make_properties():
     positions = list(map(int, open(r'p\positions.txt').read().split('\n')))
     houses = open(r'p\houses.txt').read().split('\n') #houses[0].split(' ') for individual values
     hotels = list(map(int, open(r'p\hotels.txt').read().split('\n')))
+    rents = list(map(int, open(r'p\rents.txt').read().split('\n')))
     for x in range(len(names)):
-        props.append(property(names[x], costs[x], colours[x], positions[x], houses[x], hotels[x]))
+        props.append(property(names[x], costs[x], colours[x], positions[x], houses[x], hotels[x], rents[x]))
 def make_chances():
     names = open(r'c\names.txt').read().split('\n')
     positions = list(map(int, open(r'c\positions.txt').read().split('\n')))
@@ -86,3 +94,8 @@ def make_tiles():
             for p in l: #l is a list, p is an object
                 if p.position == x:
                     tiles.insert(40, p)
+    for x in range(40):
+        for l in props, stations, utils:
+            for p in l:
+                if p.position == x:
+                    availables.insert(40, p)

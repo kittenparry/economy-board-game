@@ -1,4 +1,4 @@
-from game.properties import tiles, props, stations, utils
+from game.properties import tiles, availables
 from game.games import game, players
 from game.strings import strings
 
@@ -17,17 +17,14 @@ def states():
 
 def start():
     begin = game(4)
-    players[0].roll_die()
-    players[0].roll_die()
-    players[0].roll_die()
-    for f in begin.bank.properties:
-        print("%d\t%s" % (f.position, f.name))
-    print("%d total." % len(begin.bank.properties))
-    print("---")
-    for f in tiles:
-        print("%d\t%s" % (f.position, f.name))
-    print("%d total." % len(tiles))
-    #states()
+    for p in players:
+        print(p.avatar, p.ai)
+    print(availables[0].owner)
+    players[1].buy(availables[1])
+    players[0].move(3)
+    print(availables[1].owner.avatar)
+    states()
+
     #players[0].ai_turn()
     #switch("s") #states() is shorter...
     #while True:
