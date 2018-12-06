@@ -22,34 +22,37 @@ class player():
         else:
             print(strings("no_money"))
 
-    def roll_die(self):
+    def roll_die(self, s_util = None):
         self.die1 = random.randint(1, 6)
         self.die2 = random.randint(1, 6)
         #double test
         #self.die1 = 2
         #self.die2 = 2
         print("%d and %d, a total of %d." % (self.die1, self.die2, (self.die1 + self.die2)))
-        self.dies = (self.position + (self.die1 + self.die2)) % 40
-        #check for doubles, etc
-        if self.double_die >= 2:
-            print("%s rolled 3 doubles back to back and will go to jail." % self.avatar)
-            self.position = tiles[9].position #jail
-            self.double_die = 0
-        else:
-            self.move(self.dies)
-            if self.die1 == self.die2:
-                #needs to purchase/pay rent etc before rerolling
-                print("%s rolled a double and will roll again." % self.avatar)
-                self.double_die += 1
-                #shouldn't roll by itself again
-                #but how to manage ai?
-                if self.ai:
-                    #self.roll_die()
-                    #not really this ^
-                    #but something else
-                    pass
-            if self.die1 != self.die2:
+        if s_util == None:
+            self.dies = (self.position + (self.die1 + self.die2)) % 40
+            #check for doubles, etc
+            if self.double_die >= 2:
+                print("%s rolled 3 doubles back to back and will go to jail." % self.avatar)
+                self.position = tiles[9].position #jail
                 self.double_die = 0
+            else:
+                self.move(self.dies)
+                if self.die1 == self.die2:
+                    #needs to purchase/pay rent etc before rerolling
+                    print("%s rolled a double and will roll again." % self.avatar)
+                    self.double_die += 1
+                    #shouldn't roll by itself again
+                    #but how to manage ai?
+                    if self.ai:
+                        #self.roll_die()
+                        #not really this ^
+                        #but something else
+                        pass
+                if self.die1 != self.die2:
+                    self.double_die = 0
+        else:
+            return (self.die1 + self.die2)
 
     def move(self, position):
         self.position = position
@@ -88,16 +91,43 @@ class player():
 
 
     def pay_rent(self, property):
-        houses = list(map(int, property.houses.split(" ")))
-        if property.house_count >= 1:
-            rent = houses[property.house_count-1]
-            print("%s has %d houses. Rent is $%d." % (property.name, property.house_count, rent))
-        elif property.has_hotel:
-            rent = property.hotel
-            print("%s has a hotel. Rent is $%d." % (property.name, rent))
-        else:
-            rent = property.rent
-            print("Rent of %s is $%d." % (property.name, rent))
+        if property in props:
+            houses = list(map(int, property.houses.split(" ")))
+            if property.house_count >= 1:
+                rent = houses[property.house_count-1]
+                print("%s has %d houses. Rent is $%d." % (property.name, property.house_count, rent))
+            elif property.has_hotel:
+                rent = property.hotel
+                print("%s has a hotel. Rent is $%d." % (property.name, rent))
+            else:
+                rent = property.rent
+                print("Rent of %s is $%d." % (property.name, rent))
+        elif property in stations:
+            station_count = 0
+            for f in stations:
+                if f.owner == property.owner:
+                    station_count += 1
+            if station_count == 4:
+                rent = 200
+            elif station_count == 3:
+                rent = 100
+            elif station_count == 2:
+                rent = 50
+            else:
+                rent = 25
+            print("%s owns %d station(s). Rent is $%d." % (property.owner.avatar, station_count, rent))
+        else: #elif property in utils:
+            #4xdice if 1 owned, 10xdice if 2.
+            util_count = 0
+            for f in utils:
+                if f.owner == property.owner:
+                    util_count += 1
+            if util_count == 2:
+                print("%s owns both of the utilities. Roll die and pay 10 times." % property.owner.avatar)
+                rent = self.roll_die(True) * 10
+            else:
+                print("%s owns one of the utilities. Roll die and pay 4 times." % property.owner.avatar)
+                rent = self.roll_die(True) * 4
         if self.money >= rent:
             self.money -= rent
             property.owner.money += rent
@@ -105,8 +135,6 @@ class player():
         else:
             print("Not enough money to pay the rent.")
             #mortgage etc. here
-
-
     def ai_turn(self):
         print("%s is rolling..." % self.avatar)
         self.temp_pos = self.position

@@ -1,4 +1,4 @@
-from game.properties import tiles, availables
+from game.properties import *
 from game.games import game, players
 from game.strings import strings
 
@@ -19,10 +19,11 @@ def start():
     begin = game(4)
     for p in players:
         print(p.avatar, p.ai)
-    print(availables[0].owner)
-    players[1].buy(availables[1])
-    players[0].move(3)
-    print(availables[1].owner.avatar)
+    print(stations[0].owner)
+    players[1].buy(utils[0])
+    #players[1].buy(stations[1])
+    players[0].move(12)
+    print(utils[0].owner.avatar)
     states()
 
     #players[0].ai_turn()
