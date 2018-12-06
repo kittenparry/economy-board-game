@@ -20,12 +20,14 @@ def start():
     for p in players:
         print(p.avatar, p.ai)
     print(stations[0].owner)
-    players[1].buy(utils[0])
+    #players[1].buy(utils[0])
+    #players[1].buy(utils[1])
     #players[1].buy(stations[1])
     players[0].move(12)
-    print(utils[0].owner.avatar)
+    #print(utils[0].owner.avatar)
+    for p in players[1:]:
+        print(p.avatar)
     states()
-
     #players[0].ai_turn()
     #switch("s") #states() is shorter...
     #while True:

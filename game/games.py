@@ -1,7 +1,6 @@
-from game.players import player
+from game.players import player, players
 from game.properties import *
 
-players = []
 class game():
     def __init__(self, player_count):
         self.player_count = player_count #this may be useless
@@ -20,3 +19,4 @@ class game():
         make_taxes()
         make_miscs()
         make_tiles()
+        make_availables()

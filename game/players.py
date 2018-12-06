@@ -2,6 +2,7 @@ from game.strings import strings
 from game.properties import *
 import random
 
+players = []
 class player():
     def __init__(self, avatar, ai):
         self.money =  1500
@@ -10,11 +11,17 @@ class player():
         self.avatar = avatar
         self.double_die = 0
         self.ai = ai
+        self.bid = 0
+        #self.player_count = player_count #this really isn't the way to do this
 
-    def buy(self, property):
-        #auction if not purchased
-        if self.money >= property.cost:
-            self.money -= property.cost
+    def buy(self, property, bid = None):
+        if bid == None:
+            cost = property.cost
+        else:
+            cost = bid
+            #auction if not purchased
+        if self.money >= cost:
+            self.money -= cost
             self.properties.append(property) #this looks useless after adding owners
             property.owner = self
             #probably need to remove it from the bank's pool
@@ -40,6 +47,7 @@ class player():
                 self.move(self.dies)
                 if self.die1 == self.die2:
                     #needs to purchase/pay rent etc before rerolling
+                    #we are doing the purchases with .move() so it should be alright
                     print("%s rolled a double and will roll again." % self.avatar)
                     self.double_die += 1
                     #shouldn't roll by itself again
@@ -69,7 +77,6 @@ class player():
                 if self.cur_tile.owner != None and self.cur_tile.owner != self:
                     print("already owned")
                     self.pay_rent(self.cur_tile)
-
                 else:
                     print("%d: %s, costs $%d. Purchase? (y/n)" % (self.position, self.cur_tile.name, self.cur_tile.cost))
                     while True:
@@ -78,11 +85,11 @@ class player():
                             self.buy(self.cur_tile)
                             break
                         elif i == "n":
-                            print("::Auction here")
+                            self.auction(self.cur_tile)
                             break
                         else:
                             print("Enter y or n only.")
-        elif self.cur_tile in chances:
+        elif self.cur_tile in decks:
             print("it's a chance")
         elif self.cur_tile in taxes:
             print("it's taxes")
@@ -135,6 +142,44 @@ class player():
         else:
             print("Not enough money to pay the rent.")
             #mortgage etc. here
+
+    def auction(self, property):
+        print("%s decides not to buy %s. An auction is now in session.\nHighest bidder gets the property." % (self.avatar, property.name))
+        self.auction_bid = 1
+        #self.ai_bids = 0 #do an increase with each turn?
+        #while True:
+        for p in players[1:]: #ai bidding
+            self.auction_bid = random.randint(self.auction_bid, (p.money/5)) #1/4th is low?
+            p.bid = self.auction_bid
+            #this is flawed because as long as the last robot has money, it will get the property
+            #instead do randomize bids without giving a low limit of auction_bid to solve?
+        print("Bids so far are:")
+        for p in players[1:]:
+            print("%s\t$%d" % (p.avatar, p.bid))
+        print("Enter an amount between $%d-$%d. Or type \"skip\"." % (self.auction_bid, self.money))
+        while True:
+            try:
+                str = input()
+                try:
+                    self.bid = int(str)
+                except ValueError:
+                    pass
+                if str == "skip":
+                    #selling to the highest bidder here
+                    for p in players:
+                        if self.auction_bid == p.bid:
+                            p.buy(property, p.bid)
+                            print("%s is the highest bidder with $%d." % (p.avatar, p.bid))
+                    break
+                elif self.bid > self.auction_bid and self.bid <= self.money:
+                    #buying self here
+                    print("%s is the highest bidder with $%d." % (self.avatar, self.bid))
+                    self.buy(property, self.bid)
+                    break
+                else:
+                    print("Please enter only numbers between $%d-$%d. Or type \"skip\"." % (self.auction_bid, self.money))
+            except ValueError:
+                print("Please enter only numbers between $%d-$%d. Or type \"skip\"." % (self.auction_bid, self.money))
     def ai_turn(self):
         print("%s is rolling..." % self.avatar)
         self.temp_pos = self.position
@@ -142,7 +187,7 @@ class player():
         print("%s is moving from %d to %d." % (self.avatar, self.temp_pos, self.position))
         self.cur_tile = next((p for p in props if p.position == self.position), None)
         #if none check others here?
-        #props, chances, stations, utils, taxes, miscs
+        #props, decks, stations, utils, taxes, miscs
         if self.cur_tile is None:
             self.cur_tile = next((p for p in props if p.position == self.position), None)
         print("%d is %s." % (self.position, self.cur_tile.name))

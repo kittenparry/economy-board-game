@@ -37,7 +37,7 @@ class misc():
         self.name = name
         self.position = position
 props = []
-chances = []
+decks = []
 stations = []
 utils = []
 taxes = []
@@ -60,7 +60,7 @@ def make_chances():
     names = open(r'c\names.txt').read().split('\n')
     positions = list(map(int, open(r'c\positions.txt').read().split('\n')))
     for x in range(len(names)):
-        chances.append(chance(names[x], positions[x]))
+        decks.append(chance(names[x], positions[x]))
 def make_stations():
     #all cost 200
     names = open(r's\names.txt').read().split('\n')
@@ -90,10 +90,11 @@ def make_miscs():
 def make_tiles():
     #gameboard is 40 tiles (0-39)
     for x in range(40):
-        for l in props, chances, stations, utils, taxes, miscs:
+        for l in props, decks, stations, utils, taxes, miscs:
             for p in l: #l is a list, p is an object
                 if p.position == x:
                     tiles.insert(40, p)
+def make_availables():
     for x in range(40):
         for l in props, stations, utils:
             for p in l:
