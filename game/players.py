@@ -15,6 +15,7 @@ class player():
         self.bid = 0
         self.get_out_of_jail = 0
         self.in_jail = False
+        self.is_bankrupt = False
 
     def buy(self, property, bid = None):
         if bid == None:
@@ -181,6 +182,44 @@ class player():
                     print("Please enter only numbers between $%d-$%d. Or type \"skip\"." % (self.auction_bid, self.money))
             except ValueError:
                 print("Please enter only numbers between $%d-$%d. Or type \"skip\"." % (self.auction_bid, self.money))
+    def choose_mortgage(self, fee):
+        print("%s currently has $%d and need a total of $%d." % (self.avatar, self.money, fee))
+        #maybe put above to move?
+        if len(self.properties) > 0:
+            print("Choose one of the following to mortgage by typing its ID.")
+            print("ID\tValue\tColour\tName")
+            temp_list = []
+            x = 0
+            for p in self.properties:
+                if not p.is_mortgaged:
+                    x += 1
+                    print("%d\t$%d\t%s\t%s" % (x, (p.cost/2), p.colour, p.name))
+                    temp_list.append(p)
+            while True:
+                try:
+                    s = int(input())
+                    self.mortgage(temp_list[s-1], fee)
+                    break
+                except (ValueError, IndexError):
+                    print("Enter a number between 1-%d." % (len(temp_list)))
+        else:
+            self.bankruptcy()
+    def mortgage(self, property, fee):
+        #need to sell houses? before mortgaging
+        property.is_mortgaged = True
+        self.money += property.cost/2
+        if self.money >= fee:
+            print("%s mortgaged %s for $%d and paid their debt of $%d." % (self.avatar, property.name, property.cost/2, fee))
+            self.money -= fee
+        else:
+            print("%s mortgaged %s for $%d and paid some of their debt." % (self.avatar, property.name, property.cost/2))
+            leftover = fee - self.money
+            self.money = 0
+            self.choose_mortgage(leftover)
+    def bankruptcy(self):
+        print("%s didn't have the property or money to pay their debt and is bankrupt." % self.avatar)
+        self.is_bankrupt = True
+        #add an if not is_bankrupt switch to every action or remove them from player pool?
     def ai_turn(self):
         print("%s is rolling..." % self.avatar)
         self.temp_pos = self.position
@@ -307,7 +346,9 @@ class player():
                 house_count += p.house_count
                 if p.has_hotel:
                     hotel_count += 1
-        fee += (hotel_count * house_cost) + (hotel_count * hotel_cost)
+        fee += (house_count * house_cost) + (hotel_count * hotel_cost)
+        print("%s has a total of %d house(s) and %d hotel(s)." % (self.avatar, house_count, hotel_count))
+        print("Total fee is %d." % fee)
         if self.money >= fee:
             self.money -= fee
         else:

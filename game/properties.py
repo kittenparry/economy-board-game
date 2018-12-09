@@ -10,7 +10,8 @@ class property():
         self.owner = None
         self.house_count = 0
         self.has_hotel = False
-        self.rent = rent
+        self.rent = rent #rent is doubled if all colours are owned (even if mortgaged)
+        self.is_mortgaged = False
 class deck():
     def __init__(self, name, position):
         self.name = name
