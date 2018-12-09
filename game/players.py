@@ -12,7 +12,6 @@ class player():
         self.double_die = 0
         self.ai = ai
         self.bid = 0
-        #self.player_count = player_count #this really isn't the way to do this
         self.get_out_of_jail = 0
         self.in_jail = False
 
@@ -43,7 +42,7 @@ class player():
             #check for doubles, etc
             if self.double_die >= 2:
                 print("%s rolled 3 doubles back to back and will go to jail." % self.avatar)
-                self.position = tiles[9].position #jail
+                self.position = tiles[10].position #jail
                 self.double_die = 0
             else:
                 self.move(self.dies)
@@ -97,7 +96,6 @@ class player():
             print("it's taxes")
         elif self.cur_tile in miscs:
             print("it's miscs")
-
 
     def pay_rent(self, property):
         if property in props:
@@ -213,10 +211,14 @@ class player():
         #Receive for services $25.
         #You have won second prize in a beauty contest. Collect $10.
         #You inherit $100.
+        #C:Bank pays you dividend of $50.
+        #C:Your building and loan matures. Collect $150.
+        #C:You have won a crossword competition. Collect $100.
     def cc_pay_money(self, money):
         #Doctor's fee. Pay $50.
         #Hospital Fees. Pay $50.
         #School fees. Pay $50.
+        #C:Pay poor tax of $15.
         if self.money >= money:
             self.money -= money
         else:
@@ -224,10 +226,13 @@ class player():
             #mortgage etc. here
     def cc_get_out_of_jail(self):
         #Get Out of Jail Free.
+        #C:Get out of Jail Free. This card may be kept until needed, or traded/sold.
         self.get_out_of_jail += 1
     def cc_go_to_jail(self):
         #Go to Jail. Go directly to jail. Do not pass Go, Do not collect $200.
-        self.position = tiles[9].position
+        #C:Go to Jail. Go directly to Jail. Do not pass GO, do not collect $200.
+        self.position = 10
+        self.in_jail = True
     def cc_collect_from_players(self, money):
         #Grand Opera Night. Collect $50 from every player for opening night seats.
         #It is your birthday. Collect $10 from every player.
@@ -240,8 +245,9 @@ class player():
             else:
                 pass
                 #mortgage etc. here
-    def cc_pay_for_houses_hotels(self):
+    def cc_pay_for_houses_hotels(self, house_cost, hotel_cost):
         #You are assessed for street repairs: Pay $40 per house and $115 per hotel you own.
+        #C:Make general repairs on all your property: For each house pay $25, For each hotel pay $100.
         house_count = 0
         hotel_count = 0
         fee = 0
@@ -250,8 +256,51 @@ class player():
                 house_count += p.house_count
                 if p.has_hotel:
                     hotel_count += 1
-        fee += (hotel_count * 40) + (hotel_count * 115)
+        fee += (hotel_count * house_cost) + (hotel_count * hotel_cost)
         if self.money >= fee:
+            self.money -= fee
+        else:
+            #mortgage etc. here
+            pass
+    ##chances
+    def c_advance_to_x(self, x):
+        #Advance to Trafalgar Square. If you pass Go, collect $200.
+        #Advance to Pall Mall. If you pass Go, collect $200.
+        #Take a trip to Kings Cross Station. If you pass Go, collect $200.
+        #Take a trip to Mayfair. Advance token to Mayfair.
+        if self.position > x: #If you pass Go, collect $200.
+            self.money += 200
+        self.move(x) #24 Trafalgar, 11 Pall, 5 Kings Cross, 39 Mayfair
+    def c_advance_to_util(self):
+        #Advance token to nearest Utility. If unowned, you may buy it from the Bank. If owned, throw dice and pay owner a total 10 times the amount thrown.
+        if self.position > 12 and self.position < 28:
+            self.move(28)
+        else:
+            self.move(12) #TODO: add special cases for 10x throws
+        #check the rules for what happens if they are on the tile
+        #same goes for the below one
+    def c_advance_to_station(self):
+        #Advance token to the nearest Railroad and pay owner twice the rental to which he/she is otherwise entitled. If Railroad is unowned, you may buy it from the Bank.
+        #2 of these ^
+        if self.position > 35 and self.position < 5:
+            self.move(5)
+        elif self.position > 5 and self.position < 15:
+            self.move(15)
+        elif self.position > 15 and self.position < 25:
+            self.move(25)
+        else:
+            self.move(35) #TODO: add special cases for 10x throws
+    def c_go_back_3_spaces(self):
+        #Go Back 3 Spaces.
+        self.move((self.position - 3) % 40)
+    def c_pay_players(self, money):
+        #You have been elected Chairman of the Board. Pay each player $50.
+        temp_list = players.copy()
+        temp_list.remove(self)
+        fee = money * len(temp_list)
+        if self.money >= fee:
+            for p in temp_list:
+                p.money += money
             self.money -= fee
         else:
             #mortgage etc. here

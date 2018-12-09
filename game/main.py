@@ -21,6 +21,8 @@ def start():
     print(players)
     states()
     players[1].cc_collect_from_players(100)
+    print(tiles[10].name)
+    print((1 - 3) % 40)
     #for p in players:
     #    print(p.avatar, p.ai)
     #print(stations[0].owner)
