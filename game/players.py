@@ -13,6 +13,8 @@ class player():
         self.ai = ai
         self.bid = 0
         #self.player_count = player_count #this really isn't the way to do this
+        self.get_out_of_jail = 0
+        self.in_jail = False
 
     def buy(self, property, bid = None):
         if bid == None:
@@ -198,4 +200,59 @@ class player():
             self.buy(self.cur_tile)
         else:
             print("%s decides to not buy %s. It's in auction now." % (self.avatar, self.cur_tile.name))
-
+    ##community chests
+    def cc_advance_to_go(self):
+        self.move(0) #Advance to "Go". Collect $200.
+    def cc_collect_money(self, money):
+        self.money += money
+        #Bank error in your favor. Collect $200.
+        #From sale of stock you get $50.
+        #Holiday Fund matures. Collect $100.
+        #Income tax refund. Collect $20.
+        #Life insurance matures – Collect $100.
+        #Receive for services $25.
+        #You have won second prize in a beauty contest. Collect $10.
+        #You inherit $100.
+    def cc_pay_money(self, money):
+        #Doctor's fee. Pay $50.
+        #Hospital Fees. Pay $50.
+        #School fees. Pay $50.
+        if self.money >= money:
+            self.money -= money
+        else:
+            pass
+            #mortgage etc. here
+    def cc_get_out_of_jail(self):
+        #Get Out of Jail Free.
+        self.get_out_of_jail += 1
+    def cc_go_to_jail(self):
+        #Go to Jail. Go directly to jail. Do not pass Go, Do not collect $200.
+        self.position = tiles[9].position
+    def cc_collect_from_players(self, money):
+        #Grand Opera Night. Collect $50 from every player for opening night seats.
+        #It is your birthday. Collect $10 from every player.
+        temp_list = players.copy()
+        temp_list.remove(self)
+        for p in temp_list:
+            if p.money >= money:
+                self.money += money
+                p.money -= money
+            else:
+                pass
+                #mortgage etc. here
+    def cc_pay_for_houses_hotels(self):
+        #You are assessed for street repairs: Pay $40 per house and $115 per hotel you own.
+        house_count = 0
+        hotel_count = 0
+        fee = 0
+        for p in props:
+            if p.owner == self:
+                house_count += p.house_count
+                if p.has_hotel:
+                    hotel_count += 1
+        fee += (hotel_count * 40) + (hotel_count * 115)
+        if self.money >= fee:
+            self.money -= fee
+        else:
+            #mortgage etc. here
+            pass

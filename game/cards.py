@@ -12,3 +12,4 @@ def make_cards():
         chests.append(card("chest", cc_names[x]))
         chances.append(card("chance", c_names[x]))
 #i suppose i also need to put their functions in player class
+#use the function switch from main.py for functions?
