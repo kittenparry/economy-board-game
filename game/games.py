@@ -1,5 +1,6 @@
 from game.players import player, players
 from game.properties import *
+from game.cards import *
 
 class game():
     def __init__(self, player_count):
@@ -13,10 +14,11 @@ class game():
 
     def make_makes(self):
         make_properties()
-        make_chances()
+        make_decks()
         make_stations()
         make_utils()
         make_taxes()
         make_miscs()
         make_tiles()
         make_availables()
+        make_cards()

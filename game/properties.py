@@ -11,7 +11,7 @@ class property():
         self.house_count = 0
         self.has_hotel = False
         self.rent = rent
-class chance():
+class deck():
     def __init__(self, name, position):
         self.name = name
         self.position = position
@@ -47,25 +47,25 @@ availables = []
 def make_properties():
     #probably could do a for loop below?
     #a dictionary maybe?
-    names = open(r'p\names.txt').read().split('\n')
-    costs = list(map(int, open(r'p\costs.txt').read().split('\n')))
-    colours = open(r'p\colours.txt').read().split('\n')
-    positions = list(map(int, open(r'p\positions.txt').read().split('\n')))
-    houses = open(r'p\houses.txt').read().split('\n') #houses[0].split(' ') for individual values
-    hotels = list(map(int, open(r'p\hotels.txt').read().split('\n')))
-    rents = list(map(int, open(r'p\rents.txt').read().split('\n')))
+    names = open(r'property\names.txt').read().split('\n')
+    costs = list(map(int, open(r'property\costs.txt').read().split('\n')))
+    colours = open(r'property\colours.txt').read().split('\n')
+    positions = list(map(int, open(r'property\positions.txt').read().split('\n')))
+    houses = open(r'property\houses.txt').read().split('\n') #houses[0].split(' ') for individual values
+    hotels = list(map(int, open(r'property\hotels.txt').read().split('\n')))
+    rents = list(map(int, open(r'property\rents.txt').read().split('\n')))
     for x in range(len(names)):
         props.append(property(names[x], costs[x], colours[x], positions[x], houses[x], hotels[x], rents[x]))
-def make_chances():
-    names = open(r'c\names.txt').read().split('\n')
-    positions = list(map(int, open(r'c\positions.txt').read().split('\n')))
+def make_decks():
+    names = open(r'deck\names.txt').read().split('\n')
+    positions = list(map(int, open(r'deck\positions.txt').read().split('\n')))
     for x in range(len(names)):
-        decks.append(chance(names[x], positions[x]))
+        decks.append(deck(names[x], positions[x]))
 def make_stations():
     #all cost 200
-    names = open(r's\names.txt').read().split('\n')
+    names = open(r'station\names.txt').read().split('\n')
     costs = 200
-    positions = list(map(int, open(r's\positions.txt').read().split('\n')))
+    positions = list(map(int, open(r'station\positions.txt').read().split('\n')))
     for x in range(len(names)):
         stations.append(station(names[x], costs, positions[x]))
 def make_utils():
