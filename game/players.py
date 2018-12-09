@@ -1,5 +1,6 @@
 from game.strings import strings
 from game.properties import *
+from game.cards import *
 import random
 
 players = []
@@ -198,44 +199,96 @@ class player():
             self.buy(self.cur_tile)
         else:
             print("%s decides to not buy %s. It's in auction now." % (self.avatar, self.cur_tile.name))
+    def chance(self, c_or_cc):
+        if c_or_cc: #chance
+            cur_card = chances[0]
+            chances.append(chances.pop(0)) #puts the card to the end of the list
+            print("Chance!")
+            print(cur_card.desc)
+            self.id_chance(cur_card.id)
+        else: #community chest
+            cur_card = chests[0]
+            chests.append(chests.pop(0))
+            print("Community Chest!")
+            print(cur_card.desc)
+            self.id_chest(cur_card.id)
+    def id_chance(self, id):
+        if id == 0:
+            self.cc_advance_to_go()
+        elif id == 1:
+            self.c_advance_to_x(24)
+        elif id == 2:
+            self.c_advance_to_x(11)
+        elif id == 3:
+            self.c_advance_to_util()
+        elif id == 4 or id == 5:
+            self.c_advance_to_station()
+        elif id == 6:
+            self.cc_collect_money(50)
+        elif id == 7:
+            self.cc_get_out_of_jail()
+        elif id == 8:
+            self.c_go_back_3_spaces()
+        elif id == 9:
+            self.cc_go_to_jail()
+        elif id == 10:
+            self.cc_pay_for_houses_hotels(25, 100)
+        elif id == 11:
+            self.cc_pay_money(15)
+        elif id == 12:
+            self.c_advance_to_x(5)
+        elif id == 13:
+            self.c_advance_to_x(39)
+        elif id == 14:
+            self.c_pay_players(50)
+        elif id == 15:
+            self.cc_collect_money(150)
+        elif id == 16:
+            self.cc_collect_money(100)
+    def id_chest(self, id):
+        if id == 0:
+            self.cc_advance_to_go()
+        elif id == 1:
+            self.cc_collect_money(200)
+        elif id == 2 or id == 11 or id == 12:
+            self.cc_pay_money(50)
+        elif id == 3:
+            self.cc_collect_money(50)
+        elif id == 4:
+            self.cc_get_out_of_jail()
+        elif id == 5:
+            self.cc_go_to_jail()
+        elif id == 6:
+            self.cc_collect_from_players(50)
+        elif id == 7 or id == 10 or id == 16:
+            self.cc_collect_money(100)
+        elif id == 8:
+            self.cc_collect_money(20)
+        elif id == 9:
+            self.cc_collect_from_players(10)
+        elif id == 13:
+            self.cc_collect_money(25)
+        elif id == 14:
+            self.cc_pay_for_houses_hotels(40, 115)
+        elif id == 15:
+            self.cc_collect_money(10)
     ##community chests
     def cc_advance_to_go(self):
-        self.move(0) #Advance to "Go". Collect $200.
+        self.move(0)
     def cc_collect_money(self, money):
         self.money += money
-        #Bank error in your favor. Collect $200.
-        #From sale of stock you get $50.
-        #Holiday Fund matures. Collect $100.
-        #Income tax refund. Collect $20.
-        #Life insurance matures – Collect $100.
-        #Receive for services $25.
-        #You have won second prize in a beauty contest. Collect $10.
-        #You inherit $100.
-        #C:Bank pays you dividend of $50.
-        #C:Your building and loan matures. Collect $150.
-        #C:You have won a crossword competition. Collect $100.
     def cc_pay_money(self, money):
-        #Doctor's fee. Pay $50.
-        #Hospital Fees. Pay $50.
-        #School fees. Pay $50.
-        #C:Pay poor tax of $15.
         if self.money >= money:
             self.money -= money
         else:
             pass
             #mortgage etc. here
     def cc_get_out_of_jail(self):
-        #Get Out of Jail Free.
-        #C:Get out of Jail Free. This card may be kept until needed, or traded/sold.
         self.get_out_of_jail += 1
     def cc_go_to_jail(self):
-        #Go to Jail. Go directly to jail. Do not pass Go, Do not collect $200.
-        #C:Go to Jail. Go directly to Jail. Do not pass GO, do not collect $200.
         self.position = 10
         self.in_jail = True
     def cc_collect_from_players(self, money):
-        #Grand Opera Night. Collect $50 from every player for opening night seats.
-        #It is your birthday. Collect $10 from every player.
         temp_list = players.copy()
         temp_list.remove(self)
         for p in temp_list:
@@ -246,8 +299,6 @@ class player():
                 pass
                 #mortgage etc. here
     def cc_pay_for_houses_hotels(self, house_cost, hotel_cost):
-        #You are assessed for street repairs: Pay $40 per house and $115 per hotel you own.
-        #C:Make general repairs on all your property: For each house pay $25, For each hotel pay $100.
         house_count = 0
         hotel_count = 0
         fee = 0
@@ -264,10 +315,6 @@ class player():
             pass
     ##chances
     def c_advance_to_x(self, x):
-        #Advance to Trafalgar Square. If you pass Go, collect $200.
-        #Advance to Pall Mall. If you pass Go, collect $200.
-        #Take a trip to Kings Cross Station. If you pass Go, collect $200.
-        #Take a trip to Mayfair. Advance token to Mayfair.
         if self.position > x: #If you pass Go, collect $200.
             self.money += 200
         self.move(x) #24 Trafalgar, 11 Pall, 5 Kings Cross, 39 Mayfair
@@ -291,10 +338,8 @@ class player():
         else:
             self.move(35) #TODO: add special cases for 10x throws
     def c_go_back_3_spaces(self):
-        #Go Back 3 Spaces.
         self.move((self.position - 3) % 40)
     def c_pay_players(self, money):
-        #You have been elected Chairman of the Board. Pay each player $50.
         temp_list = players.copy()
         temp_list.remove(self)
         fee = money * len(temp_list)

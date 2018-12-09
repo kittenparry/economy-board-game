@@ -22,3 +22,4 @@ class game():
         make_tiles()
         make_availables()
         make_cards()
+        shuffle_cards()

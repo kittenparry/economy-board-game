@@ -1,6 +1,7 @@
 from game.properties import *
 from game.games import game, players
 from game.strings import strings
+from game.cards import *
 
 def switch(val):
     s = {
@@ -17,22 +18,8 @@ def states():
 
 def start():
     begin = game(4)
-    players[0].cc_collect_from_players(50)
-    print(players)
     states()
-    players[1].cc_collect_from_players(100)
-    print(tiles[10].name)
-    print((1 - 3) % 40)
-    #for p in players:
-    #    print(p.avatar, p.ai)
-    #print(stations[0].owner)
-    #players[1].buy(utils[0])
-    #players[1].buy(utils[1])
-    #players[1].buy(stations[1])
-    #players[0].move(12)
-    #print(utils[0].owner.avatar)
-    #for p in players[1:]:
-    #    print(p.avatar)
+    players[0].chance(True)
     states()
     #players[0].ai_turn()
     #switch("s") #states() is shorter...
