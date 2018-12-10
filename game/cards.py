@@ -16,6 +16,4 @@ def make_cards():
 def shuffle_cards():
     random.shuffle(chests)
     random.shuffle(chances)
-#i suppose i also need to put their functions in player class
-#use the function switch from main.py for functions?
-#need to shuffle cards before the game starts (should be in games.py)
+#only 16 cards instead of 17? wonder which ones shouldn't exist.

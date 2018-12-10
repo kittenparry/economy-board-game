@@ -1,6 +1,7 @@
 from game.strings import strings
 from game.properties import *
 from game.cards import *
+from game.constants import *
 import random
 
 players = []
@@ -183,6 +184,7 @@ class player():
             except ValueError:
                 print("Please enter only numbers between $%d-$%d. Or type \"skip\"." % (self.auction_bid, self.money))
     def choose_mortgage(self, fee):
+        #ask if they want to sell houses or mortgage first
         print("%s currently has $%d and need a total of $%d." % (self.avatar, self.money, fee))
         #maybe put above to move?
         if len(self.properties) > 0:
@@ -220,6 +222,83 @@ class player():
         print("%s didn't have the property or money to pay their debt and is bankrupt." % self.avatar)
         self.is_bankrupt = True
         #add an if not is_bankrupt switch to every action or remove them from player pool?
+        #maybe won't be necessary after i implement turn() function and can check there
+    def build_house(self, property):
+        #browns, light blues $50
+        #pinks, oranges $100
+        #reds, yellows $150
+        #greens, dark blues $200
+        #a hotel cost same as a house, but needs 4 built
+        #also limit the max amount of houses in games.py
+        #in total: 32 houses, 12 hotels
+        #they also need to build houses evenly amongst all properties of a colour (new houses going to the one with the least amount first)
+        #instead of this individual build style, only get colour and house count?
+        c = property.colour
+        #check if they own all colours
+        temp_list = []
+        for p in props:
+            if p.colour == c:
+                temp_list.append(p)
+        owns = 0
+        for p in temp_list:
+            if p.owner == self:
+                owns += 1
+        if owns == len(temp_list):
+            if c == "brown" or c == "light blue":
+                cost = 50
+            elif c == "pink" or c == "orange":
+                cost = 100
+            elif c == "red" or c == "yellow":
+                cost = 150
+            else: #green, dark blue
+                cost = 200
+            built = property.house_count
+            global_houses = 0
+            for p in props:
+                global_houses += p.house_count
+            available_houses = MAX_HOUSES - global_houses
+            allowed = available_houses if available_houses < 4 else 4
+            if built == 4:
+                print("%s already has the max number of houses (4).")
+            else:
+                if built == 0:
+                    print("%s doesn't have any houses." % property.name)
+                else:
+                    print("%s has %d house(s)." % (property.name, built))
+                print("How many houses would you like to build?")
+                permitted = 0
+                if allowed > built: #4-0, 4; 3-0, 3; 4-3, 1 etc.
+                    permitted = allowed - built
+                else: #allowed <= built
+                    if allowed == 3: #3-3, 1
+                        permitted = 1
+                    elif allowed == 2: #2-2, 2
+                        permitted = 2
+                    elif allowed == 1: #1-1, 1
+                        permitted = 1
+                while True:
+                    try:
+                        s = int(input())
+                        if s <= permitted:
+                            total_cost = s * cost
+                            if self.money >= total_cost:
+                                self.money -= total_cost
+                                property.house_count += s
+                                break #these breaks only the if loop?
+                            else:
+                                print(strings("no_money"))
+                                break
+                        else:
+                            raise ValueError() #needs testing
+                            #also probably need to count houses from MAX_HOUSES
+                    except ValueError:
+                        print("Enter a number between 1-%d." % permitted)
+        else:
+            print("%s needs all the properties of %s colour to build houses." % (self.avatar, property.colour))
+
+
+    def build_hotel(self, property):
+        pass
     def ai_turn(self):
         print("%s is rolling..." % self.avatar)
         self.temp_pos = self.position
