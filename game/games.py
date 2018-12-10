@@ -11,7 +11,6 @@ class game():
         players.append(player("P1", False))
         for x in range(1, player_count):
             players.append(player("P%d" % (x+1), True))
-
     def make_makes(self):
         make_properties()
         make_decks()

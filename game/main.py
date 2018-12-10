@@ -17,7 +17,6 @@ def start():
     players[0].roll_die()
     states()
     #players[0].ai_turn()
-    #switch("s") #states() is shorter...
     #while True:
         #turns, playing, stuff here
         #probably need an ai

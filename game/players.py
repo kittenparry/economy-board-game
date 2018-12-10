@@ -39,19 +39,21 @@ class player():
         #double test
         #self.die1 = 2
         #self.die2 = 2
-        print("%d and %d, a total of %d." % (self.die1, self.die2, (self.die1 + self.die2)))
+        print(strings("roll_die") % (self.avatar, self.die1, self.die2, (self.die1 + self.die2)))
         if s_util == None:
             #check for doubles, etc
             if self.double_die >= 2:
-                print("%s rolled 3 doubles back to back and will go to jail." % self.avatar)
+                print(strings("roll_3_d") % self.avatar)
                 self.position = tiles[10].position #jail
+                self.in_jail = True
+                #again, replace this with a going to jail function
                 self.double_die = 0
             else:
                 self.move(self.die1 + self.die2, True)
                 if self.die1 == self.die2:
                     #needs to purchase/pay rent etc before rerolling
                     #we are doing the purchases with .move() so it should be alright
-                    print("%s rolled a double and will roll again." % self.avatar)
+                    print(strings("roll_d") % self.avatar)
                     self.double_die += 1
                     #shouldn't roll by itself again
                     #but how to manage ai?
@@ -71,7 +73,7 @@ class player():
             if self.position >= 40:
                 self.money += GO_SALARY
             self.position %= 40
-            print("%s passed GO and collected $%d as their salary." % (self.avatar, GO_SALARY))
+            print(strings("move_pass_GO")% (self.avatar, GO_SALARY))
         else:
             self.position = position
         self.cur_tile = tiles[self.position]
@@ -88,7 +90,7 @@ class player():
                     print("already owned")
                     self.pay_rent(self.cur_tile)
                 else:
-                    print("%d: %s, costs $%d. Purchase? (y/n)" % (self.position, self.cur_tile.name, self.cur_tile.cost))
+                    print(strings("move_buy_prop") % (self.position, self.cur_tile.name, self.cur_tile.cost))
                     while True:
                         i = input().lower()
                         if i == "y":
@@ -98,7 +100,7 @@ class player():
                             self.auction(self.cur_tile)
                             break
                         else:
-                            print("Enter y or n only.")
+                            print(strings("err_yn"))
         elif self.cur_tile in decks:
             print("it's a chance")
             if self.cur_tile.name == "Chance":
@@ -108,7 +110,7 @@ class player():
         elif self.cur_tile in taxes:
             if self.money >= self.cur_tile.cost:
                 self.money -= self.cur_tile.cost
-                print("%s paid $%d in %s." % (self.avatar, self.cur_tile.cost, self.cur_tile.name))
+                print(strings("move_pay_tax") % (self.avatar, self.cur_tile.cost, self.cur_tile.name))
             else:
                 #mortgage stuff here
                 #probably mortgage_or_sell_house?
@@ -118,7 +120,7 @@ class player():
             if self.cur_tile == miscs[0]:
                 pass
             elif self.cur_tile == miscs[1]:
-                print("%s is visiting jail." % self.avatar)
+                print(strings("move_visit_jail") % self.avatar)
             elif self.cur_tile == miscs[2]:
                 print(self.cur_tile.name)
             elif self.cur_tile == miscs[3]:
@@ -130,13 +132,13 @@ class player():
             houses = list(map(int, property.houses.split(" ")))
             if property.house_count >= 1:
                 rent = houses[property.house_count-1]
-                print("%s has %d houses. Rent is $%d." % (property.name, property.house_count, rent))
+                print(strings("rent_house") % (property.name, property.house_count, rent))
             elif property.has_hotel:
                 rent = property.hotel
-                print("%s has a hotel. Rent is $%d." % (property.name, rent))
+                print(strings("rent_hotel")% (property.name, rent))
             else:
                 rent = property.rent
-                print("Rent of %s is $%d." % (property.name, rent))
+                print(strings("rent_none") % (property.name, rent))
         elif property in stations:
             station_count = 0
             for f in stations:
@@ -150,7 +152,7 @@ class player():
                 rent = 50
             else:
                 rent = 25
-            print("%s owns %d station(s). Rent is $%d." % (property.owner.avatar, station_count, rent))
+            print(strings("rent_station") % (property.owner.avatar, station_count, rent))
         else: #elif property in utils:
             #4xdice if 1 owned, 10xdice if 2.
             util_count = 0
@@ -158,21 +160,21 @@ class player():
                 if f.owner == property.owner:
                     util_count += 1
             if util_count == 2:
-                print("%s owns both of the utilities. Roll die and pay 10 times." % property.owner.avatar)
+                print(strings("rent_util_2") % property.owner.avatar)
                 rent = self.roll_die(True) * 10
             else:
-                print("%s owns one of the utilities. Roll die and pay 4 times." % property.owner.avatar)
+                print(strings("rent_util_1") % property.owner.avatar)
                 rent = self.roll_die(True) * 4
         if self.money >= rent:
             self.money -= rent
             property.owner.money += rent
-            print("%s has paid %s a total of $%d." % (self.avatar, property.owner.avatar, rent))
+            print(strings("rent_pay") % (self.avatar, property.owner.avatar, rent))
         else:
-            print("Not enough money to pay the rent.")
+            print(strings("rent_fail") % (self.avatar))
             #mortgage etc. here
 
     def auction(self, property):
-        print("%s decides not to buy %s. An auction is now in session.\nHighest bidder gets the property." % (self.avatar, property.name))
+        print(strings("auction") % (self.avatar, property.name))
         self.auction_bid = 1
         #self.ai_bids = 0 #do an increase with each turn?
         #while True:
@@ -181,10 +183,10 @@ class player():
             p.bid = self.auction_bid
             #this is flawed because as long as the last robot has money, it will get the property
             #instead do randomize bids without giving a low limit of auction_bid to solve?
-        print("Bids so far are:")
+        print(strings("auc_bids"))
         for p in players[1:]:
-            print("%s\t$%d" % (p.avatar, p.bid))
-        print("Enter an amount between $%d-$%d. Or type \"s\" to skip." % (self.auction_bid, self.money))
+            print(strings("auc_list") % (p.avatar, p.bid))
+        print(strings("auc_or_s") % (self.auction_bid, self.money)) #probably need to check if the player has more money here.
         while True:
             try:
                 str = input()
@@ -197,30 +199,30 @@ class player():
                     for p in players:
                         if self.auction_bid == p.bid:
                             p.buy(property, p.bid)
-                            print("%s is the highest bidder with $%d." % (p.avatar, p.bid))
+                            print(strings("auc_win") % (p.avatar, p.bid))
                     break
                 elif self.bid > self.auction_bid and self.bid <= self.money:
                     #buying self here
-                    print("%s is the highest bidder with $%d." % (self.avatar, self.bid))
+                    print(strings("auc_win") % (self.avatar, self.bid))
                     self.buy(property, self.bid)
                     break
                 else:
-                    print("Please enter only numbers between $%d-$%d. Or type \"s\"." % (self.auction_bid, self.money))
+                    print(strings("auc_or_s") % (self.auction_bid, self.money))
             except ValueError:
-                print("Please enter only numbers between $%d-$%d. Or type \"s\"." % (self.auction_bid, self.money))
+                print(strings("auc_or_s") % (self.auction_bid, self.money))
     def choose_mortgage(self, fee):
         #ask if they want to sell houses or mortgage first
-        print("%s currently has $%d and need a total of $%d." % (self.avatar, self.money, fee))
+        print(strings("mort_need") % (self.avatar, self.money, fee))
         #maybe put above to move?
         if len(self.properties) > 0:
-            print("Choose one of the following to mortgage by typing its ID.")
-            print("ID\tValue\tColour\tName")
+            print(strings("mort_cho"))
+            print(strings("mort_list_title"))
             temp_list = []
             x = 0
             for p in self.properties:
                 if not p.is_mortgaged:
                     x += 1
-                    print("%d\t$%d\t%s\t%s" % (x, (p.cost/2), p.colour, p.name))
+                    print(strings("mort_list") % (x, (p.cost/2), p.colour, p.name))
                     temp_list.append(p)
             while True:
                 try:
@@ -228,7 +230,7 @@ class player():
                     self.mortgage(temp_list[s-1], fee)
                     break
                 except (ValueError, IndexError):
-                    print("Enter a number between 1-%d." % (len(temp_list)))
+                    print(strings("err_n") % (len(temp_list)))
         else:
             self.bankruptcy()
     def mortgage(self, property, fee):
@@ -236,15 +238,15 @@ class player():
         property.is_mortgaged = True
         self.money += property.cost/2
         if self.money >= fee:
-            print("%s mortgaged %s for $%d and paid their debt of $%d." % (self.avatar, property.name, property.cost/2, fee))
+            print(strings("mort_full") % (self.avatar, property.name, property.cost/2, fee))
             self.money -= fee
         else:
-            print("%s mortgaged %s for $%d and paid some of their debt." % (self.avatar, property.name, property.cost/2))
+            print(strings("mort_some") % (self.avatar, property.name, property.cost/2))
             leftover = fee - self.money
             self.money = 0
             self.choose_mortgage(leftover)
     def bankruptcy(self):
-        print("%s didn't have the property or money to pay their debt and is bankrupt." % self.avatar)
+        print(strings("bankrupt") % self.avatar)
         self.is_bankrupt = True
         #add an if not is_bankrupt switch to every action or remove them from player pool?
         #maybe won't be necessary after i implement turn() function and can check there
@@ -284,13 +286,13 @@ class player():
             available_houses = MAX_HOUSES - global_houses
             allowed = available_houses if available_houses < 4 else 4
             if built == 4:
-                print("%s already has the max number of houses (4)." % property.name)
+                print(strings("house_max") % property.name)
             else:
                 if built == 0:
-                    print("%s doesn't have any houses." % property.name)
+                    print(strings("house_none") % property.name)
                 else:
-                    print("%s has %d house(s)." % (property.name, built))
-                print("How many houses would you like to build?")
+                    print(strings("house_some") % (property.name, built))
+                print(strings("house_question"))
                 permitted = 0
                 if allowed > built: #4-0, 4; 3-0, 3; 4-3, 1 etc.
                     permitted = allowed - built
@@ -309,8 +311,8 @@ class player():
                             if self.money >= total_cost:
                                 self.money -= total_cost
                                 property.house_count += s
-                                print("%s paid $%d to build %d house(s) on %s." % (self.avatar, total_cost, s, property.name))
-                                print("It now has %d house(s) in total." % property.house_count)
+                                print(strings("house_build") % (self.avatar, total_cost, s, property.name))
+                                print(strings("house_total") % property.house_count)
                                 break
                             else:
                                 print(strings("no_money"))
@@ -318,9 +320,9 @@ class player():
                         else:
                             raise ValueError()
                     except ValueError:
-                        print("Enter a number between 1-%d." % permitted)
+                        print(strings("err_n") % permitted)
         else:
-            print("%s needs all the properties of %s colour to build houses." % (self.avatar, property.colour))
+            print(strings("house_colours") % (self.avatar, property.colour))
     def build_hotel(self, property):
         pass
     def ai_turn(self):
@@ -345,13 +347,13 @@ class player():
         if c_or_cc: #chance
             cur_card = chances[0]
             chances.append(chances.pop(0)) #puts the card to the end of the list
-            print("Chance!")
+            print(cur_card.name)
             print(cur_card.desc)
             self.id_chance(cur_card.id)
         else: #community chest
             cur_card = chests[0]
             chests.append(chests.pop(0))
-            print("Community Chest!")
+            print(cur_card.name)
             print(cur_card.desc)
             self.id_chest(cur_card.id)
     def id_chance(self, id):
@@ -450,8 +452,8 @@ class player():
                 if p.has_hotel:
                     hotel_count += 1
         fee += (house_count * house_cost) + (hotel_count * hotel_cost)
-        print("%s has a total of %d house(s) and %d hotel(s)." % (self.avatar, house_count, hotel_count))
-        print("Total fee is %d." % fee)
+        print(strings("cc_hh_count") % (self.avatar, house_count, hotel_count))
+        print(strings("cc_hh_fee") % fee)
         if self.money >= fee:
             self.money -= fee
         else:
