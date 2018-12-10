@@ -81,7 +81,7 @@ def make_taxes():
     costs = [200, 100]
     positions = [4, 38]
     for x in range(len(names)):
-        taxes.append(tax(names[x], costs, positions[x]))
+        taxes.append(tax(names[x], costs[x], positions[x]))
 def make_miscs():
     #Collect $200 salary as you pass
     names = ["GO", "In Jail/Just Visiting", "Free Parking", "Go to Jail"]

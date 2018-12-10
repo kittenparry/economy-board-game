@@ -41,14 +41,13 @@ class player():
         #self.die2 = 2
         print("%d and %d, a total of %d." % (self.die1, self.die2, (self.die1 + self.die2)))
         if s_util == None:
-            self.dies = (self.position + (self.die1 + self.die2)) % 40
             #check for doubles, etc
             if self.double_die >= 2:
                 print("%s rolled 3 doubles back to back and will go to jail." % self.avatar)
                 self.position = tiles[10].position #jail
                 self.double_die = 0
             else:
-                self.move(self.dies)
+                self.move(self.die1 + self.die2, True)
                 if self.die1 == self.die2:
                     #needs to purchase/pay rent etc before rerolling
                     #we are doing the purchases with .move() so it should be alright
@@ -66,13 +65,15 @@ class player():
         else:
             return (self.die1 + self.die2)
 
-    def move(self, position, forced = False):
-        #add a force_move switch for move(5), move(0) etc.
-        #forced = False for dies.
-        #get 200 bucks from GO
-        #old_pos = self.position
-        #if ((position-old_pos)+position)
-        self.position = position
+    def move(self, position, die = False):
+        if die:
+            self.position += position
+            if self.position >= 40:
+                self.money += GO_SALARY
+            self.position %= 40
+            print("%s passed GO and collected $%d as their salary." % (self.avatar, GO_SALARY))
+        else:
+            self.position = position
         self.cur_tile = tiles[self.position]
         #checks for special positions here
         #stations and utils also can be auctioned
@@ -115,7 +116,14 @@ class player():
                 pass
         elif self.cur_tile in miscs:
             if self.cur_tile == miscs[0]:
-                print("%s ")
+                pass
+            elif self.cur_tile == miscs[1]:
+                print("%s is visiting jail." % self.avatar)
+            elif self.cur_tile == miscs[2]:
+                print(self.cur_tile.name)
+            elif self.cur_tile == miscs[3]:
+                self.cc_go_to_jail() #might not be correct way to do it
+                #make a separate go to jail function to also get 3 double dies?
 
     def pay_rent(self, property):
         if property in props:
@@ -176,7 +184,7 @@ class player():
         print("Bids so far are:")
         for p in players[1:]:
             print("%s\t$%d" % (p.avatar, p.bid))
-        print("Enter an amount between $%d-$%d. Or type \"skip\"." % (self.auction_bid, self.money))
+        print("Enter an amount between $%d-$%d. Or type \"s\" to skip." % (self.auction_bid, self.money))
         while True:
             try:
                 str = input()
@@ -184,7 +192,7 @@ class player():
                     self.bid = int(str)
                 except ValueError:
                     pass
-                if str == "skip":
+                if str == "s":
                     #selling to the highest bidder here
                     for p in players:
                         if self.auction_bid == p.bid:
@@ -197,9 +205,9 @@ class player():
                     self.buy(property, self.bid)
                     break
                 else:
-                    print("Please enter only numbers between $%d-$%d. Or type \"skip\"." % (self.auction_bid, self.money))
+                    print("Please enter only numbers between $%d-$%d. Or type \"s\"." % (self.auction_bid, self.money))
             except ValueError:
-                print("Please enter only numbers between $%d-$%d. Or type \"skip\"." % (self.auction_bid, self.money))
+                print("Please enter only numbers between $%d-$%d. Or type \"s\"." % (self.auction_bid, self.money))
     def choose_mortgage(self, fee):
         #ask if they want to sell houses or mortgage first
         print("%s currently has $%d and need a total of $%d." % (self.avatar, self.money, fee))
@@ -452,7 +460,7 @@ class player():
     ##chances
     def c_advance_to_x(self, x):
         if self.position > x: #If you pass Go, collect $200.
-            self.money += 200
+            self.money += GO_SALARY
         self.move(x) #24 Trafalgar, 11 Pall, 5 Kings Cross, 39 Mayfair
     def c_advance_to_util(self):
         #Advance token to nearest Utility. If unowned, you may buy it from the Bank. If owned, throw dice and pay owner a total 10 times the amount thrown.

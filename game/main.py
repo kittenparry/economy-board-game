@@ -12,11 +12,10 @@ def states():
 def start():
     begin = game(4)
     states()
-    #players[0].chance(True)
-    props[0].owner, props[1].owner = players[0], players[0]
-    players[0].build_house(props[0])
+    players[0].move(37)
     states()
-    players[0].build_house(props[0])
+    players[0].roll_die()
+    states()
     #players[0].ai_turn()
     #switch("s") #states() is shorter...
     #while True:
