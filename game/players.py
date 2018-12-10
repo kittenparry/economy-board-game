@@ -66,7 +66,12 @@ class player():
         else:
             return (self.die1 + self.die2)
 
-    def move(self, position):
+    def move(self, position, forced = False):
+        #add a force_move switch for move(5), move(0) etc.
+        #forced = False for dies.
+        #get 200 bucks from GO
+        #old_pos = self.position
+        #if ((position-old_pos)+position)
         self.position = position
         self.cur_tile = tiles[self.position]
         #checks for special positions here
@@ -95,10 +100,22 @@ class player():
                             print("Enter y or n only.")
         elif self.cur_tile in decks:
             print("it's a chance")
+            if self.cur_tile.name == "Chance":
+                self.chance(True)
+            else:
+                self.chance(False)
         elif self.cur_tile in taxes:
-            print("it's taxes")
+            if self.money >= self.cur_tile.cost:
+                self.money -= self.cur_tile.cost
+                print("%s paid $%d in %s." % (self.avatar, self.cur_tile.cost, self.cur_tile.name))
+            else:
+                #mortgage stuff here
+                #probably mortgage_or_sell_house?
+                #print(strings("no_money"))
+                pass
         elif self.cur_tile in miscs:
-            print("it's miscs")
+            if self.cur_tile == miscs[0]:
+                print("%s ")
 
     def pay_rent(self, property):
         if property in props:
@@ -259,7 +276,7 @@ class player():
             available_houses = MAX_HOUSES - global_houses
             allowed = available_houses if available_houses < 4 else 4
             if built == 4:
-                print("%s already has the max number of houses (4).")
+                print("%s already has the max number of houses (4)." % property.name)
             else:
                 if built == 0:
                     print("%s doesn't have any houses." % property.name)
@@ -284,19 +301,18 @@ class player():
                             if self.money >= total_cost:
                                 self.money -= total_cost
                                 property.house_count += s
-                                break #these breaks only the if loop?
+                                print("%s paid $%d to build %d house(s) on %s." % (self.avatar, total_cost, s, property.name))
+                                print("It now has %d house(s) in total." % property.house_count)
+                                break
                             else:
                                 print(strings("no_money"))
                                 break
                         else:
-                            raise ValueError() #needs testing
-                            #also probably need to count houses from MAX_HOUSES
+                            raise ValueError()
                     except ValueError:
                         print("Enter a number between 1-%d." % permitted)
         else:
             print("%s needs all the properties of %s colour to build houses." % (self.avatar, property.colour))
-
-
     def build_hotel(self, property):
         pass
     def ai_turn(self):
